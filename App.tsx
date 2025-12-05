@@ -63,6 +63,19 @@ const App: React.FC = () => {
 
   const handleUserLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check for Admin Login directly from main login
+    // Using trim() to handle accidental spaces
+    if (loginEmail.trim() === ADMIN_USER && loginPass.trim() === ADMIN_PASS) {
+      setIsAdminLoggedIn(true);
+      setViewState(ViewState.ADMIN);
+      setLoginError('');
+      // Clear fields
+      setLoginEmail('');
+      setLoginPass('');
+      return;
+    }
+
     if (loginEmail && loginPass) {
       // Mock login success - In a real app, this would be validated against a backend
       // We assign a static ID '1' for this demo user
@@ -78,6 +91,9 @@ const App: React.FC = () => {
       });
       setViewState(ViewState.HOME);
       setLoginError('');
+      // Clear fields
+      setLoginEmail('');
+      setLoginPass('');
     } else {
       setLoginError('Preencha todos os campos.');
     }
@@ -85,7 +101,7 @@ const App: React.FC = () => {
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminUser === ADMIN_USER && adminPass === ADMIN_PASS) {
+    if (adminUser.trim() === ADMIN_USER && adminPass.trim() === ADMIN_PASS) {
       setIsAdminLoggedIn(true);
       setShowAdminModal(false);
       setViewState(ViewState.ADMIN);
@@ -207,9 +223,9 @@ const App: React.FC = () => {
         
         <form onSubmit={handleUserLogin} className="space-y-5">
           <Input 
-            label="Email" 
-            type="email" 
-            placeholder="seu@email.com" 
+            label="Email ou Usuário" 
+            type="text" 
+            placeholder="seu@email.com ou usuário" 
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
           />
@@ -305,7 +321,7 @@ const App: React.FC = () => {
         </svg>
       </a>
 
-      {/* Admin Modal */}
+      {/* Admin Modal - KEPT AS BACKUP */}
       {showAdminModal && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
