@@ -3,25 +3,28 @@ import { GoogleGenAI } from "@google/genai";
 // Safely retrieve API key to prevent "process is not defined" errors in browser environments
 const getApiKey = () => {
   try {
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env.API_KEY || '';
+    // Check for Node/Webpack environment (standard for Vercel/CRA)
+    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+      return process.env.API_KEY;
     }
   } catch (error) {
-    // Check for import.meta.env for Vite environments if needed, or just ignore
-    console.warn("Environment variable access check failed, using fallback.");
+    console.warn("Environment variable access check failed.");
   }
   return '';
 };
 
-const apiKey = getApiKey();
-const ai = new GoogleGenAI({ apiKey });
-
 export const generateTravelTip = async (): Promise<string> => {
   try {
+    const apiKey = getApiKey();
+
     // If no key is present, fallback immediately without calling API to avoid errors
     if (!apiKey) {
+      console.log("No API Key found, using fallback tip.");
       return "Dica do dia: Chegue 5 minutos antes para garantir tranquilidade!";
     }
+
+    // Initialize inside the function to prevent crash on load
+    const ai = new GoogleGenAI({ apiKey });
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
