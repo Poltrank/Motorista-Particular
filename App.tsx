@@ -14,7 +14,7 @@ const ADMIN_USER = "ADM";
 const ADMIN_PASS = "Armandinho10#";
 
 // Default Hero Image
-const DEFAULT_HERO_IMAGE = "https://images.unsplash.com/photo-1493238792015-faa33f3cf54b?q=80&w=2073&auto=format&fit=crop";
+const DEFAULT_HERO_IMAGE = "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1000&auto=format&fit=crop";
 
 const App: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>(ViewState.HOME);
@@ -41,8 +41,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Load settings from local storage
-    const savedHero = localStorage.getItem('heroImage');
-    const savedFleet = localStorage.getItem('fleetCars');
+    // Updated to v5 to force new images provided by user
+    const savedHero = localStorage.getItem('heroImage_v5');
+    const savedFleet = localStorage.getItem('fleetCars_v5');
 
     if (savedHero) setHeroImage(savedHero);
     if (savedFleet) setFleetCars(JSON.parse(savedFleet));
@@ -51,8 +52,8 @@ const App: React.FC = () => {
   const handleUpdateSettings = (newHero: string, newFleet: Car[]) => {
     setHeroImage(newHero);
     setFleetCars(newFleet);
-    localStorage.setItem('heroImage', newHero);
-    localStorage.setItem('fleetCars', JSON.stringify(newFleet));
+    localStorage.setItem('heroImage_v5', newHero);
+    localStorage.setItem('fleetCars_v5', JSON.stringify(newFleet));
   };
 
   const getConfirmedTripCount = (userId: string) => {
