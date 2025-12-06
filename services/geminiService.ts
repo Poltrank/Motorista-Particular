@@ -1,29 +1,38 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Safely retrieve API key to prevent "process is not defined" errors in browser environments
-const getApiKey = () => {
-  try {
-    // Check for Node/Webpack environment (standard for Vercel/CRA)
-    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-      return process.env.API_KEY;
-    }
-  } catch (error) {
-    console.warn("Environment variable access check failed.");
-  }
-  return '';
-};
-
 export const generateTravelTip = async (): Promise<string> => {
   try {
-    const apiKey = getApiKey();
+    let apiKey = '';
 
-    // If no key is present, fallback immediately without calling API to avoid errors
+    // 1. Try resolving via Vite/Modern standard (import.meta.env)
+    try {
+      // @ts-ignore - ignore TS error for import.meta if config is strict
+      if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
+        // @ts-ignore
+        apiKey = import.meta.env.VITE_API_KEY;
+      }
+    } catch (e) {
+      // Ignore errors if import.meta doesn't exist
+    }
+
+    // 2. Try resolving via Node/Webpack standard (process.env)
     if (!apiKey) {
-      console.log("No API Key found, using fallback tip.");
+      try {
+        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+          apiKey = process.env.API_KEY;
+        }
+      } catch (e) {
+        // Ignore errors if process is not defined
+      }
+    }
+
+    // Check if key was found
+    if (!apiKey) {
+      console.warn("Gemini API Key not found in environment variables. Using fallback.");
       return "Dica do dia: Chegue 5 minutos antes para garantir tranquilidade!";
     }
 
-    // Initialize inside the function to prevent crash on load
+    // Initialize only if we have a key and inside the async function
     const ai = new GoogleGenAI({ apiKey });
 
     const response = await ai.models.generateContent({
@@ -34,7 +43,7 @@ export const generateTravelTip = async (): Promise<string> => {
     return response.text || "Viaje com segurança e conforto sempre.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    // Return a safe fallback so the UI doesn't break
+    // Return a safe fallback so the UI doesn't break or show white screen
     return "Dica: Mantenha seu cinto de segurança afivelado durante toda a viagem.";
   }
 };
